@@ -1,0 +1,33 @@
+type Contact = record {
+  id : text;
+  updated_at : opt nat64;
+  info : text;
+  name : text;
+  label : text;
+  company : text;
+  address : text;
+  number : float64;
+  created_date : nat64;
+};
+type ContactPayload = record {
+  info : text;
+  name : text;
+  label : text;
+  company : text;
+  address : text;
+  number : float64;
+};
+type _AzleResult = variant { Ok : Contact; Err : text };
+type _AzleResult_1 = variant { Ok : vec Contact; Err : text };
+service : () -> {
+  addContact : (ContactPayload) -> (_AzleResult);
+  deleteContact : (text) -> (_AzleResult);
+  getAllContacts : () -> (_AzleResult_1) query;
+  getContact : (text) -> (_AzleResult) query;
+  searchContactsByAddress : (text) -> (_AzleResult_1) query;
+  searchContactsByCompany : (text) -> (_AzleResult_1) query;
+  searchContactsByLabel : (text) -> (_AzleResult_1) query;
+  searchContactsByName : (text) -> (_AzleResult_1) query;
+  searchContactsByPhoneNumber : (float64) -> (_AzleResult_1) query;
+  updateContact : (text, ContactPayload) -> (_AzleResult);
+}
