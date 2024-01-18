@@ -1,106 +1,120 @@
-# Task Management Smart Contract
+# Smart Contacts Contract
 
-This TypeScript code defines a basic task management system on the Internet Computer. This is a CRUD (Create, Read, Update, Delete) Internet computer smart contract for managing tasks, including search, filtering, and status-based retrieval. It also includes some basic authorization checks to ensure that users can only manipulate their own tasks.
+This project involves creating a decentralized contact management system on the Internet Computer using smart contracts developed in Typescript. Users can add, update, and delete contacts, and contact details are securely stored on the Smart Contract. Blockchain-based identity is used for secure authentication.
 
 ## Overview
 
+Here's an overview of its key components:
+
 ### 1. Type Definitions
 
-- **Task Type:**
+- **Contact Type:**
 
   ```typescript
-  type Task = Record<{
+  type Contact = Record<{
     id: string;
-    title: string;
-    creator: Principal;
-    description: string;
-    status: string;
-    due_in_minutes: bigint;
+    name: string;
+    number: number;
+    address: string;
+    company: string;
+    label: string;
+    info: string;
     updated_at: Opt<nat64>;
     created_date: nat64;
   }>;
   ```
 
-- **TaskPayload Type:**
+- **ContactPayload Type:**
 
   ```typescript
-  type TaskPayload = Record<{
-    title: string;
-    description: string;
-    due_in_minutes: number;
+  type ContactPayload = Record<{
+    name: string;
+    number: number;
+    address: string;
+    company: string;
+    label: string;
+    info: string;
   }>;
   ```
 
 ### 2. Storage
 
-- A stable BTree map (`taskStorage`) is used to store tasks
-  
+- A stable BTree map (`contactStorage`) is used to store contacts.
+
   ```typescript
-  const taskStorage = new StableBTreeMap<string, Task>(0, 44, 512);
+  const contactStorage = new StableBTreeMap<string, Contact>(0, 44, 512);
   ```
 
 ### 3. Update Functions
 
 - Update functions modify the state. For example:
-  
+
   ```typescript
   @update
-  function addTask(payload: TaskPayload): Result<Task, string> { /* ... */ }
+  function addContact(payload: ContactPayload): Result<Contact, string> { /* ... */ }
   ```
 
 ### 4. Query Functions
 
 - Query functions retrieve data but don't modify the state:
-  
+
   ```typescript
   @query
-  function getTasks(): Result<Vec<Task>, string> { /* ... */ }
+  function getContact(id: string): Result<Contact, string> { /* ... */ }
 
   @query
-  function getTaskById(id: string): Result<Task, string> { /* ... */ }
+  function getAllContacts(): Result<Vec<Contact>, string> { /* ... */ }
 
   @query
-  function searchTasks(searchInput: string): Result<Vec<Task>, string> { /* ... */ }
+  function searchContactsByName(name: string): Result<Vec<Contact>, string> { /* ... */ }
 
   @query
-  function getTasksByStatus(status: string): Result<Vec<Task>, string> { /* ... */ }
+  function searchContactsByCompany(company: string): Result<Vec<Contact>, string> { /* ... */ }
 
   @query
-  function getTasksPastDue(): Result<Vec<Task>, string> { /* ... */ }
+  function searchContactsByLabel(label: string): Result<Vec<Contact>, string> { /* ... */ }
+
+  @query
+  function searchContactsByAddress(address: string): Result<Vec<Contact>, string> { /* ... */ }
+
+  @query
+  function searchContactsByPhoneNumber(number: number): Result<Vec<Contact>, string> { /* ... */ }
   ```
 
-### 5. UUID Generation
+### 5. Update and Delete Functions
+
+- Functions are provided to update and delete contacts:
+
+  ```typescript
+  @update
+  function updateContact(id: string, payload: ContactPayload): Result<Contact, string> { /* ... */ }
+
+  @update
+  function deleteContact(id: string): Result<Contact, string> { /* ... */ }
+  ```
+
+### 6. UUID Generation
 
 - A workaround for generating UUIDs using the `uuid` library:
-  
+
   ```typescript
   globalThis.crypto = {
     getRandomValues: () => {
       let array = new Uint8Array(32);
+
       for (let i = 0; i < array.length; i++) {
         array[i] = Math.floor(Math.random() * 256);
       }
+
       return array;
     },
   };
   ```
 
-### 6. Error Handling
+### 7. Error Handling
 
 - The `Result` type is used for handling errors and successful results.
 
-### 7. Authorization
+### 8. Validation
 
-- Some functions include authorization checks to ensure that only authorized users can perform certain actions.
-
-### 8. Task Status Management
-
-- Functions are provided to mark a task as completed, update the task status, and retrieve tasks by status.
-
-### 9. Due Date Handling
-
-- The due date is represented in minutes, You could adjust this to hours or days, and there's a function to retrieve tasks past their due date.
-
-### 10. Date and Time
-
-- The `ic.time()` function is used to get the current timestamp.
+- Input data is validated, and functions return an error if required fields are missing.
